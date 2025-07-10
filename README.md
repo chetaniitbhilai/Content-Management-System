@@ -1,123 +1,187 @@
-# 📰 CMS Backend
+# 🧠 CMS Backend API (FastAPI + Docker)
 
-A FastAPI-based backend for a simple Content Management System (CMS).
-Supports user authentication, article CRUD, and JWT-based access.
-
----
-
-## 🚀 Features
-
-* User registration and login with JWT
-* Create, read, update, delete (CRUD) articles
-* Seed fake articles using Faker
-* RESTful API using FastAPI
-* Dockerized with PostgreSQL
+This is the backend service for the **CMS** (Content Management System) built using **FastAPI**, **PostgreSQL**, and **Docker**.
+It supports user authentication, article CRUD, and tracking recently viewed articles.
 
 ---
 
-## 🧱 Tech Stack
+## 📦 Tech Stack
 
-* **Backend**: FastAPI, SQLAlchemy
-* **Database**: PostgreSQL
-* **Auth**: JWT
-* **Testing**: Pytest
-* **Containerization**: Docker, Docker Compose
-
----
-
-## 📦 Getting Started
-
-### ⚖️ Prerequisites
-
-* [Docker](https://www.docker.com/)
-* [Docker Compose](https://docs.docker.com/compose/)
+* **FastAPI** - Web framework
+* **PostgreSQL** - Database
+* **SQLAlchemy** - ORM
+* **Docker & Docker Compose** - Containerization
+* **Pytest** - Testing
 
 ---
 
-### ⚙️ Run the Backend
+## 🚀 Getting Started with Docker
+
+### ✅ Prerequisites
+
+* [Docker](https://www.docker.com/) installed and running
+
+### 🔧 Setup & Run
+
+1. **Clone the repo**
 
 ```bash
-git clone https://github.com/yourname/cms-backend.git
-cd cms-backend
+git clone https://github.com/chetaniitbhilai/Content-Management-System.git
+cd Content-Management-System
+```
 
-# Build and run services
+2. **Start containers**
+
+```bash
 docker compose up --build
 ```
 
-The API will be available at:
-📍 `http://localhost:8000`
-
-Docs:
-📚 `http://localhost:8000/docs` (Swagger UI)
+* Web API will be running at: `http://localhost:8000`
+* PostgreSQL exposed at: `localhost:5432`
 
 ---
 
-### 🧲 Run Tests (Locally)
-
-If you want to test outside Docker:
+## 🧪 Running Tests (via Docker)
 
 ```bash
-# Create and activate virtualenv
-python -m venv env
-source env/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Run tests
-pytest
+docker compose exec app pytest
 ```
 
-> ✅ Make sure your PostgreSQL DB is running and configured in `.env` or `database.py`.
+This runs all tests located in `tests/` using the container environment.
 
 ---
 
-### 🌱 Seeding the Database
-
-To insert fake articles using Faker:
+## 🧪 Seed Fake Articles
 
 ```bash
-docker compose exec web python seed.py
+docker compose exec app python seed.py
 ```
 
-You can adjust the number of articles in `seed.py`.
-
 ---
 
-### 🧲 Example: Testing API with cURL
+## 📬 API Usage via `curl`
+
+All endpoints are accessible at `http://localhost:8000`. Use the token returned from login for authorized routes.
+
+### 1. 📝 Register
 
 ```bash
-# Register a new user
-curl -X POST http://localhost:8000/auth/register -H "Content-Type: application/json" \
--d '{"username": "testuser", "password": "testpass"}'
+curl -X POST http://localhost:8000/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"username": "testuser", "password": "testpass"}'
+```
 
-# Login and get token
-curl -X POST http://localhost:8000/auth/login -H "Content-Type: application/json" \
--d '{"username": "testuser", "password": "testpass"}'
+### 2. 🔐 Login
 
-# Create article
+```bash
+curl -X POST http://localhost:8000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username": "testuser", "password": "testpass"}'
+```
+
+Save the `token`:
+
+```bash
+export TOKEN=your_token_here
+```
+
+### 3. ➕ Create Article
+
+```bash
 curl -X POST http://localhost:8000/articles/ \
--H "Authorization: Bearer <your_token>" \
--H "Content-Type: application/json" \
--d '{"title": "My First Article", "content": "Hello world!"}'
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"title": "My First Article", "content": "This is the body."}'
 ```
 
----
-
-## 🧼 Clean Up
+### 4. ✏️ Update Article
 
 ```bash
-docker compose down -v
+curl -X PUT http://localhost:8000/articles/1 \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Updated Title", "content": "Updated content"}'
+```
+
+### 5. 📄 Get Single Article
+
+```bash
+curl -X GET http://localhost:8000/articles/1 \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+### 6. 📚 Get All Articles
+
+```bash
+curl -X GET http://localhost:8000/articles/ \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+### 7. 👁️ Recently Viewed Articles
+
+```bash
+curl -X GET http://localhost:8000/articles/recently-viewed \
+  -H "Authorization: Bearer $TOKEN"
 ```
 
 ---
 
-## 📄 License
+## 🐳 Docker Compose Setup
 
-MIT – feel free to use, improve, and contribute 🎉
+### `docker-compose.yml`
+
+```yaml
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15
+    container_name: cms-db
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: cms
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  web:
+    build: .
+    container_name: cms-app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgres://user:password@db:5432/cms
+
+volumes:
+  pgdata:
+```
+
+### `Dockerfile`
+
+```dockerfile
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+EXPOSE 8000
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+```
 
 ---
 
-## 👤 Author
+## 👥 Contributions
 
-* [Your Name](https://github.com/yourgithub)
+PRs are welcome! Please run tests before submitting changes.
+
+---
