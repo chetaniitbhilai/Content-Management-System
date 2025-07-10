@@ -38,7 +38,7 @@ def read(article_id: int, db: Session = Depends(get_db), user_id: int = Depends(
 
     return article
 
-# List articles (public or you can filter by user_id if needed)
+# List articles (public or you can filter by user_id if needed) for pagination 
 @router.get("/", response_model=list[schemas.ArticleResponse])
 def list_articles(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     return crud.get_articles(db, skip=skip, limit=limit)
