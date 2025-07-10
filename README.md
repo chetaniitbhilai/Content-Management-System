@@ -5,6 +5,18 @@ It supports user authentication, article CRUD, and tracking recently viewed arti
 
 ---
 
+## 🚀 Features
+
+- Create, update, delete, and view articles.
+- Authentication using token-based login.
+- Recently viewed article tracking.
+- Pagination support for listing articles.
+- Dockerized setup with a separate database container.
+- Simple database seeding with fake data.
+- Unit testing inside Docker using `pytest`.
+
+---
+
 ## 📦 Tech Stack
 
 * **FastAPI** - Web framework
@@ -117,7 +129,14 @@ curl -X GET http://localhost:8000/articles/ \
   -H "Authorization: Bearer $TOKEN"
 ```
 
-### 7. 👁️ Recently Viewed Articles
+### 7. 📚 Get Paginated Articles
+
+```bash
+curl -X GET "http://localhost:8000/articles/?skip=10&limit=5" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+### 8. 👁️ Recently Viewed Articles
 
 ```bash
 curl -X GET http://localhost:8000/articles/recently-viewed \
