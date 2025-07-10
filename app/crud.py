@@ -1,12 +1,17 @@
 from sqlalchemy.orm import Session
 from . import models, schemas
 
-def create_article(db: Session, article: schemas.ArticleCreate):
-    db_article = models.Article(**article.dict())
+def create_article(db: Session, article: schemas.ArticleCreate, user_id: int):
+    db_article = models.Article(
+        title=article.title,
+        content=article.content,
+        author_id=user_id  # or author_id, match your model
+    )
     db.add(db_article)
     db.commit()
     db.refresh(db_article)
     return db_article
+
 
 def get_article(db: Session, article_id: int):
     return db.query(models.Article).filter(models.Article.id == article_id).first()
@@ -45,3 +50,9 @@ def authenticate_user(db: Session, username: str, password: str):
     if user and user.password == password:
         return user
     return None
+
+def generate_token_for_user(user_id: int):
+    import uuid
+    token = str(uuid.uuid4())
+    fake_token_store[token] = user_id
+    return token

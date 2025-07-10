@@ -18,8 +18,10 @@ def get_db():
 # Create article (optionally, bind it to the logged-in user)
 @router.post("/", response_model=schemas.ArticleResponse)
 def create(article: schemas.ArticleCreate, db: Session = Depends(get_db), user_id: int = Depends(get_current_user)):
-    # Optionally attach author_id if you're tracking it
-    return crud.create_article(db, article)
+    return crud.create_article(db, article, user_id)
+
+
+
 
 # Read article and update "recently viewed" for the current user
 @router.get("/{article_id}", response_model=schemas.ArticleResponse)

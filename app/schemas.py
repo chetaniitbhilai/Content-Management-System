@@ -1,13 +1,13 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 
 class ArticleBase(BaseModel):
     title: str
     content: str
-    author_id: int
 
 class ArticleCreate(ArticleBase):
-    pass
+    title: str
+    content: str
 
 class ArticleUpdate(BaseModel):
     title: str | None = None
@@ -18,8 +18,8 @@ class ArticleResponse(ArticleBase):
     created_at: datetime
     updated_at: datetime | None
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
+
 
 class UserCreate(BaseModel):
     username: str
