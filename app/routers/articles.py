@@ -51,3 +51,6 @@ def delete(article_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Article not found")
     return deleted
 
+@router.get("/users/{user_id}/recently-viewed", response_model=list[int])
+def get_recently_viewed(user_id: int):
+    return recently_viewed.get(user_id, [])
