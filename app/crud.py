@@ -29,3 +29,19 @@ def delete_article(db: Session, article_id: int):
         db.delete(article)
         db.commit()
     return article
+
+
+fake_token_store = {} 
+
+def create_user(db: Session, username: str, password: str):
+    user = models.User(username=username, password=password)
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
+
+def authenticate_user(db: Session, username: str, password: str):
+    user = db.query(models.User).filter(models.User.username == username).first()
+    if user and user.password == password:
+        return user
+    return None
