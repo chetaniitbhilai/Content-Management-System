@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()  # Load from .env
 
-DATABASE_URL = os.getenv("postgresql://user:password@localhost:5432/cms")  # From .env
+DATABASE_URL = os.getenv("DATABASE_URL")  # From .env
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

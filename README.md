@@ -139,7 +139,7 @@ curl -X GET "http://localhost:8000/articles/?skip=10&limit=5" \
 ### 8. 👁️ Recently Viewed Articles
 
 ```bash
-curl -X GET http://localhost:8000/articles/recently-viewed \
+curl -X GET http://localhost:8000/articles/users/me/recently-viewed \
   -H "Authorization: Bearer $TOKEN"
 ```
 
